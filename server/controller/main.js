@@ -1,8 +1,6 @@
-const User = require('../models/User.js' +
-    '')
+const User = require('../models/User.js')
 const bcrypt = require("bcrypt")
 const jwt = require('jsonwebtoken')
-const jwtSecret = process.env.JWT_SECRET
 const register = async (req, res) => {
 
     try {
@@ -12,8 +10,7 @@ const register = async (req, res) => {
         res.json({message: `${username} created successfully.`})
 
     } catch (e) {
-        res.json({message: e.message})
-
+        e.code === 11000 && res.json({message: "This user already exists."})
     }
 }
 
@@ -22,15 +19,20 @@ const login = async (req, res) => {
     try {
         const {username, password} = req.body
         const newLoginUser = await User.findOne({username: username})
-        if (newLoginUser === null) res.status(404).json({message: "user could not founded by this username."})
-        else {
-            const comparePassword = await bcrypt.compare(password, newLoginUser.password)
-            if (comparePassword) {
-                const token = jwt.sign({userId: newLoginUser._id}, jwtSecret)
-                res.cookie('token', token, {httpOnly: true})
-                res.json({message: "login success."})
-            } else res.status(401).json({message: "Password is incorrect."})
-        }
+        if (!newLoginUser) return res.status(404).json({message: "User could not founded by this username."})
+
+        const comparePassword = await bcrypt.compare(password, newLoginUser.password)
+        if (comparePassword) {
+            const token = jwt.sign({userId: newLoginUser._id}, process.env.JWT_SECRET, {expiresIn: "1h"})
+            res.cookie('token', token, {
+                httpOnly: true,
+                //secure:true,
+                //maxAge: 10000000,
+                //signed:true
+            })
+            res.json({message: "login success."})
+        } else res.status(401).json({message: "Password is incorrect."})
+
 
     } catch (e) {
         res.status(400).json({message: e.message})

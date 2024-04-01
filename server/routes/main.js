@@ -2,12 +2,15 @@ const express = require('express')
 const router = express.Router()
 const controller = require('../controller/main.js')
 
+//middlewares
+const jwtMiddleware = require('../middlewares/jwtMiddleware.js')
+const loginCheckMiddleware = require('../middlewares/loginCheckMiddleware.js')
 
 router.post('/register', controller.register)
-router.post('/login', controller.login)
+router.post('/login', loginCheckMiddleware.checkForLogin, controller.login)
 
-router.get('/get', require('../middlewares/authMiddleware.js').authMiddleware, controller.getUsers)
-router.get('/logout', controller.logout)
+router.get('/get', jwtMiddleware.auth, controller.getUsers)
+router.get('/logout', loginCheckMiddleware.checkForLogout, controller.logout)
 
 router.delete('/delete/:un', controller.deleteUsers)
 

@@ -1,19 +1,19 @@
 const jwt = require('jsonwebtoken')
-const authMiddleware = (req, res, next) => {
+const auth = (req, res, next) => {
     const token = req.cookies.token
 
     if (!token) return res.status(401).json({message: "Unauthorized"})
 
     try {
         // Token is hiding some data's we preferred with secret hash that we choose in env. We call that payload
-        // here we decode the payload section and add this data's into req
+        // here we decode the payload section and add this data into req
         const decoded = jwt.verify(token, process.env.JWT_SECRET)
         req.userId = decoded.userId
-
         next()
     } catch (e) {
-        res.status(400).json({message: e})
+        res.clearCookie("token")
+        res.status(400).json({message: "Token expired or manipulated."})
     }
 }
 
-module.exports = {authMiddleware}
+module.exports = {auth}
