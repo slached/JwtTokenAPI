@@ -1,6 +1,9 @@
 ### To run the code
-
-``` 
+```
+npm install
+```
+after
+```
 npm run dev
 ```
 
