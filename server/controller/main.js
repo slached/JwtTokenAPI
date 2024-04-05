@@ -1,6 +1,7 @@
 const User = require('../models/User.js')
 const bcrypt = require("bcrypt")
 const jwt = require('jsonwebtoken')
+
 const register = async (req, res) => {
 
     try {
@@ -23,14 +24,15 @@ const login = async (req, res) => {
 
         const comparePassword = await bcrypt.compare(password, newLoginUser.password)
         if (comparePassword) {
-            const token = jwt.sign({userId: newLoginUser._id}, process.env.JWT_SECRET, {expiresIn: "1h"})
+            //create a token that includes user data inside of payload section
+            const token = jwt.sign({user: newLoginUser}, process.env.JWT_SECRET, {expiresIn: "1h"})
+
             res.cookie('token', token, {
                 httpOnly: true,
-                //secure:true,
-                //maxAge: 10000000,
-                //signed:true
+                maxAge: 30000
             })
-            res.json({message: "login success."})
+            res.status(200).json({message: "Logged in successfully."})
+
         } else res.status(401).json({message: "Password is incorrect."})
 
 
@@ -40,8 +42,9 @@ const login = async (req, res) => {
 }
 
 const logout = async (req, res) => {
+
     res.clearCookie("token")
-    res.json({message: "logout success"})
+    res.status(200).json({message: "You have logged out."})
 }
 
 const getUsers = async (req, res) => {

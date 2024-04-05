@@ -9,7 +9,7 @@ const loginCheckMiddleware = require('../middlewares/loginCheckMiddleware.js')
 router.post('/register', controller.register)
 router.post('/login', loginCheckMiddleware.checkForLogin, controller.login)
 
-router.get('/get', jwtMiddleware.auth, controller.getUsers)
+router.get('/get', jwtMiddleware.isAuthenticated, controller.getUsers)
 router.get('/logout', loginCheckMiddleware.checkForLogout, controller.logout)
 
 router.delete('/delete/:un', controller.deleteUsers)
