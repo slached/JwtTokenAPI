@@ -5,7 +5,7 @@ const mongoose = require("mongoose");
 const cookieParser = require('cookie-parser')
 
 const app = express()
-const port = 5000 || process.env.PORT
+const port = process.env.PORT || 5000
 
 //middlewares
 app.use(express.urlencoded({extended: false}))
